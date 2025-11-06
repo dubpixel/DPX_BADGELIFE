@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BadgeLife Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* CRT Effect */
+        .crt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        .crt::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+            animation: glitch 5s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.15; }
+            50% { opacity: 0.18; }
+            100% { opacity: 0.15; }
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { opacity: 0; }
+            91%, 93% { opacity: 1; transform: translate(-2px, 1px); }
+            92% { opacity: 1; transform: translate(2px, -1px); }
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ASCII Border */
+        .ascii-border {
+            border: 2px solid #00ff00;
+            padding: 8px;
+            max-width: 1600px;
+            width: 98%;
+            height: 92vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .ascii-border::before,
+        .ascii-border::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #00ff00;
+        }
+
+        .ascii-border::before {
+            top: 0;
+        }
+
+        .ascii-border::after {
+            bottom: 0;
+        }
+
+        /* Menu Screen */
+        #menu {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 60px;
+            justify-content: center;
+        }
+
+        .menu-container {
+            border: 4px solid #00ff00;
+            padding: 50px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-container::before {
+            content: "▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░";
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            right: -10px;
+            font-size: 18px;
+            color: #00ff00;
+            overflow: hidden;
+            white-space: nowrap;
+            height: 20px;
+            line-height: 20px;
+        }
+
+        .menu-container::after {
+            content: "░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓";
+            position: absolute;
+            bottom: -20px;
+            left: -10px;
+            right: -10px;
+            font-size: 18px;
+            color: #00ff00;
+            overflow: hidden;
+            white-space: nowrap;
+            height: 20px;
+            line-height: 20px;
+        }
+
+        .brick-left {
+            position: absolute;
+            left: -30px;
+            top: 0;
+            bottom: 0;
+            width: 30px;
+            font-size: 18px;
+            color: #00ff00;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            overflow: hidden;
+            line-height: 30px;
+        }
+
+        .brick-right {
+            position: absolute;
+            right: -30px;
+            top: 0;
+            bottom: 0;
+            width: 30px;
+            font-size: 18px;
+            color: #00ff00;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            overflow: hidden;
+            line-height: 30px;
+        }
+
+        .menu-title {
+            font-size: 14px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ff00;
+            line-height: 1.2;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .menu-subtitle {
+            font-size: 14px;
+            margin-bottom: 40px;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        .menu-items {
+            font-size: 20px;
+            line-height: 2.5;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0 80px;
+            justify-content: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .menu-items > div {
+            flex: 0 0 auto;
+            min-width: 40%;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 5px 10px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .menu-item::before {
+            content: " ";
+            position: absolute;
+            left: 10px;
+        }
+
+        .menu-item:hover::before {
+            content: ">";
+        }
+
+        .menu-item:hover {
+            background: #00ff00;
+            color: #000;
+            text-shadow: none;
+        }
+
+        /* Slide Screen */
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide-header {
+            font-size: 36px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #00ff00;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+        }
+
+        .slide-content {
+            flex: 1;
+            font-size: 18px;
+            line-height: 1.8;
+            overflow-y: auto;
+        }
+
+        .slide-content ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .slide-content ul li::before {
+            content: "> ";
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .slide-content ul li {
+            margin-bottom: 15px;
+        }
+
+        .slide-footer {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #00ff00;
+            opacity: 0.7;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Navigation hints */
+        .nav-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        /* Plasma Easter Egg */
+        #plasma-canvas {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            cursor: pointer;
+        }
+
+        /* Image slide styling */
+        .slide-image {
+            max-width: 100%;
+            max-height: 60vh;
+            border: 2px solid #00ff00;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Blink effect for special text */
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.3; }
+        }
+
+        .blink {
+            animation: blink 2s infinite;
+        }
+
+        /* ASCII art */
+        .ascii-art {
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: pre;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Data display */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .data-label {
+            font-weight: bold;
+        }
+
+        /* Secret plasma link */
+        .secret-link {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            font-size: 8px;
+            opacity: 0.3;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .secret-link:hover {
+            opacity: 1;
+        }
+
+        /* Boot sequence */
+        #boot-sequence {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .boot-line {
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .boot-art {
+            font-size: 10px;
+            line-height: 1.1;
+            margin: 20px 0;
+            text-align: center;
+            white-space: pre;
+        }
+
+        /* Matrix rain effect */
+        #matrix-canvas {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            background: #000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="crt"></div>
+    
+    <div class="container">
+        <div class="ascii-border">
+            <!-- Boot Sequence -->
+            <div id="boot-sequence">
+                <!-- Boot content will be dynamically generated -->
+            </div>
+
+            <!-- Main Menu -->
+            <div id="menu" style="display: none;">
+                <div class="menu-container">
+                    <div class="brick-left">▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░</div>
+                    <div class="brick-right">░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓░▒▓</div>
+                    
+                    <div class="menu-title"> ____    _    ____   ____ _____ _     ___ _____ _____ 
+| __ )  / \  |  _ \ / ___| ____| |   |_ _|  ___| ____|
+|  _ \ / _ \ | | | | |  _|  _| | |    | || |_  |  _|  
+| |_) / ___ \| |_| | |_| | |___| |___ | ||  _| | |___ 
+|____/_/   \_\____/ \____|_____|_____|___|_|   |_____|</div>
+                    <div class="menu-subtitle">pcb. led. community.</div>
+                    <div class="menu-subtitle" style="margin-bottom: 40px; border-top: 1px solid #00ff00; padding-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        TERMINAL ACCESS GRANTED // PRESENTATION MODE v2.024
+                    </div>
+                    
+                    <div class="menu-items">
+                        <div class="menu-item" onclick="showSlide('slide1')">1. BADGELIFE</div>
+                        <div class="menu-item" onclick="showSlide('slide12')">2. HISTORY</div>
+                        <div class="menu-item" onclick="showSlide('slide22')">3. COMMUNITY</div>
+                        <div class="menu-item" onclick="showSlide('slide23')">4. GALLERY</div>
+                        <div class="menu-item" onclick="showSlide('slide24')">5. TECHNICAL</div>
+                    </div>
+                    
+                    <div class="menu-subtitle" style="margin-top: 40px; border-top: 1px solid #00ff00; padding-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        SELECT OPTION // ESC: MENU // ←→: NAVIGATE SLIDES
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- SECTION 1: BADGELIFE -->
+            
+            <!-- Slide 1: BADGELIFE Section Title -->
+            <div id="slide1" class="slide">
+                <div class="slide-header">// SECTION 1</div>
+                <div class="slide-content" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div style="text-align: center;">
+                        <p style="font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 20px #00ff00;">
+                            <span class="blink">▓▓▓</span> BADGELIFE <span class="blink">▓▓▓</span>
+                        </p>
+                        <p style="font-size: 18px; opacity: 0.8;">
+                            DEFINING THE CULTURE
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>SECTION 1</span>
+                    <span class="nav-hint">→ CONTINUE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 2: What is BadgeLife? (Your Definition) -->
+            <div id="slide2" class="slide">
+                <div class="slide-header">// WHAT IS BADGELIFE?</div>
+                <div class="slide-content">
+                    <p style="margin: 10px 0; font-size: 18px; line-height: 1.6;">
+                        I'm not much for labels, but I'd define <span style="color: #00ff00; font-weight: bold;">badgelife</span> as:
+                    </p>
+                    <div style="border: 2px solid #00ff00; padding: 15px; margin: 15px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 16px; line-height: 1.6;">
+                            A niche group of <strong>hardware designers</strong> whose skills and interests are varied—often including 
+                            <strong>arts, engineering, traditional software hacking, and fabrication</strong>, hobbyist or otherwise. 
+                            Inexplicably brought together by the common drive to fabricate <strong>PCBs and electronic devices</strong> 
+                            as an <strong>expressive medium and community anchor</strong>.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/defcon-badges-lineup.png" alt="DEF CON badges lineup" style="max-width: 65%; height: auto; border: 2px solid #00ff00;">
+                        <p style="font-size: 12px; opacity: 0.7; margin-top: 5px;">[<a href="https://hackaday.com/2018/08/29/all-the-badges-of-def-con-26-vol-3/" style="color: #00ff00;">image source</a>]</p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 3: Robot Definition -->
+            <div id="slide3" class="slide">
+                <div class="slide-header">// IF YOU ASK THE ROBOT...</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 15px; margin: 15px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+                            "Badgelife" is <strong>the unofficial culture of creating, modifying, and hacking electronic conference 
+                            badges to be artistic, functional, or both</strong>.
+                        </p>
+                        <p style="font-size: 16px; line-height: 1.6;">
+                            It is a form of hardware hacking and product design that involves making badges with features like 
+                            <strong>blinking lights, puzzles, and wireless connectivity</strong>, often culminating in a contest 
+                            or an entire weekend dedicated to badge-related activities at a conference like DEF CON.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/mr-robot-badge.png" alt="Mr Robot themed badge" style="max-width: 65%; height: auto; border: 2px solid #00ff00;">
+                        <p style="font-size: 12px; opacity: 0.7; margin-top: 5px;">[<a href="https://bbenchoff.github.io/pages/MrRobot.html" style="color: #00ff00;">image source</a>]</p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 4: Further Reading -->
+            <div id="slide4" class="slide">
+                <div class="slide-header">// FURTHER READING</div>
+                <div class="slide-content" style="position: relative;">
+                    <p style="margin: 10px 0; font-size: 18px;">
+                        <span class="blink">▓</span> EXTERNAL RESOURCES <span class="blink">▓</span>
+                    </p>
+                    <ul style="font-size: 16px; line-height: 2.2; list-style: none; padding-left: 20px;">
+                        <li style="padding: 8px 15px; margin: 5px 0; transition: all 0.2s; position: relative; padding-left: 35px;" onmouseover="this.style.background='#00ff00'; this.style.color='#000'; this.querySelector('a').style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='#00ff00'; this.querySelector('a').style.color='#00ff00';"><span style="position: absolute; left: 15px;">›</span><a href="https://www.vice.com/en/article/a-history-of-badgelife-def-cons-unlikely-obsession-with-artistic-circuit-boards/" style="color: #00ff00; text-decoration: none; transition: color 0.2s;">Vice: A History of Badgelife</a></li>
+                        <li style="padding: 8px 15px; margin: 5px 0; transition: all 0.2s; position: relative; padding-left: 35px;" onmouseover="this.style.background='#00ff00'; this.style.color='#000'; this.querySelector('a').style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='#00ff00'; this.querySelector('a').style.color='#00ff00';"><span style="position: absolute; left: 15px;">›</span><a href="https://hackaday.com/tag/badgelife/" style="color: #00ff00; text-decoration: none; transition: color 0.2s;">Hackaday: Badgelife Tag</a></li>
+                        <li style="padding: 8px 15px; margin: 5px 0; transition: all 0.2s; position: relative; padding-left: 35px;" onmouseover="this.style.background='#00ff00'; this.style.color='#000'; this.querySelector('a').style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='#00ff00'; this.querySelector('a').style.color='#00ff00';"><span style="position: absolute; left: 15px;">›</span><a href="https://magazine.raspberrypi.com/articles/badgelife-the-art-of-the-conference-badge" style="color: #00ff00; text-decoration: none; transition: color 0.2s;">Raspberry Pi Mag: The Art of the Conference Badge</a></li>
+                        <li style="padding: 8px 15px; margin: 5px 0; transition: all 0.2s; position: relative; padding-left: 35px;" onmouseover="this.style.background='#00ff00'; this.style.color='#000'; this.querySelector('a').style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='#00ff00'; this.querySelector('a').style.color='#00ff00';"><span style="position: absolute; left: 15px;">›</span><a href="https://medium.com/supplyframe-hardware/the-limitless-possibilities-of-badgelife-608684c527b7" style="color: #00ff00; text-decoration: none; transition: color 0.2s;">Medium: Limitless Possibilities of Badgelife</a></li>
+                        <li style="padding: 8px 15px; margin: 5px 0; transition: all 0.2s; position: relative; padding-left: 35px;" onmouseover="this.style.background='#00ff00'; this.style.color='#000'; this.querySelector('a').style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='#00ff00'; this.querySelector('a').style.color='#00ff00';"><span style="position: absolute; left: 15px;">›</span><a href="https://www.youtube.com/watch?v=G2fHKRONc6U" style="color: #00ff00; text-decoration: none; transition: color 0.2s;">YouTube: Badgelife Documentary</a></li>
+                    </ul>
+                    <div style="position: absolute; bottom: 10px; right: 10px; width: 30%;">
+                        <img src="img/defcon-80s-badge.png" alt="DEF CON 80s themed badge" style="width: 100%; height: auto; border: 2px solid #00ff00;">
+                        <p style="font-size: 10px; opacity: 0.7; margin-top: 5px;">[<a href="https://arstechnica.com/information-technology/2018/08/honoring-the-80s-defcons-badge-is-also-a-text-adventure/" style="color: #00ff00;">source</a>]</p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 5: Customization & Hacking -->
+            <div id="slide5" class="slide">
+                <div class="slide-header">// CUSTOMIZATION & HACKING</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">
+                        <strong>Attendees modify existing badges or create their own from scratch</strong>, adding unique features 
+                        and personalizing them. 
+                        [<a href="https://www.engadget.com/2016-08-13-def-con-2016-badges.html" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <img src="img/custom-badge-modification.png" alt="Custom badge modification" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 6: Art & Creativity -->
+            <div id="slide6" class="slide">
+                <div class="slide-header">// ART & CREATIVITY</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">
+                        <strong>Many badges are designed to be works of art</strong>, showcasing creativity through their 
+                        design and functionality. 
+                        [<a href="https://hackaday.com/2017/07/12/hands-on-new-andxor-unofficial-def-con-badge/" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                      <img src="img/artistic-badge-design.png" alt="Artistic badge design" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 7: Functionality -->
+            <div id="slide7" class="slide">
+                <div class="slide-header">// FUNCTIONALITY</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">
+                        Some badges include <strong>interactive features like cryptographic puzzles, games, wireless connectivity</strong>, 
+                        or unique designs such as a clock or a mini-quadcopter. 
+                        [<a href="https://www.kickstarter.com/projects/1011964033/defcon-26-flying-electronic-quad-copter-skull-badg" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                         <img src="img/quadcopter-badge.png" alt="Quadcopter badge" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">                 
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 8: Puzzles & Games -->
+            <div id="slide8" class="slide">
+                <div class="slide-header">// PUZZLES & GAMES</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">
+                        <strong>Puzzles and games</strong> have been an increasingly common means of grounding the badges in a 
+                        <strong>contest or community building exercise</strong>. 
+                        [<a href="https://www.andnxor.com/" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <img src="img/puzzle-badge.png" alt="Puzzle badge" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 9: Learning & Skill-Building -->
+            <div id="slide9" class="slide">
+                <div class="slide-header">// LEARNING & SKILL-BUILDING</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">
+                        Badgelife provides an <strong>opportunity for hardware engineers and hobbyists to learn new skills</strong> 
+                        in product design, manufacturing, and hacking—often with a tight deadline. 
+                        [<a href="https://www.reddit.com/r/Defcon/comments/1ert5th/badges_badges_badges/" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <img src="img/learning-badges.png" alt="Learning and skill building with badges" style="max-width: 90%; height: auto; border: 2px solid #00ff00;">  
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 10: Collection -->
+            <div id="slide10" class="slide">
+                <div class="slide-header">// COLLECTION</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">
+                        Many people attend conferences, especially DEF CON, with the <strong>primary goal of collecting and trading</strong> badges. 
+                        [<a href="https://squidgeefish.com/projects/fibonacci128-sao/" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <img src="img/badge-collection.png" alt="Badge collection" style="max-width: 60%; height: auto; border: 2px solid #00ff00;">  
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 11: Community -->
+            <div id="slide11" class="slide">
+                <div class="slide-header">// COMMUNITY</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 30px; margin: 30px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 16px; line-height: 1.8;">
+                            Badgelife <strong>fosters a sense of community and camaraderie</strong> among creators and attendees, 
+                            with badge creation often becoming a <strong>central part of the conference experience</strong>.
+                        </p>
+                    </div>
+                    <p style="font-size: 14px; margin-top: 30px; opacity: 0.8; line-height: 1.6;">
+                            It creates shared experiences, conversations, and connections around hardware hacking and artistic expression.
+                            [<a href="https://www.cnet.com/news/privacy/def-con-black-hat-hacker-security-conference-las-vegas-cyberattack/" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 30px 0;">
+                        <div style="text-align: center;">
+                            <img src="img/community-badge.png" alt="Community at badge events" style="max-width: 100%; height: auto; border: 2px solid #00ff00;">
+                        </div>
+                        <div style="text-align: center;">
+                            <img src="img/community-placeholder-1.png" alt="Community gathering" style="max-width: 100%; height: auto; border: 2px solid #00ff00;">
+                        </div>
+                        <div style="text-align: center;">
+                            <img src="img/community-placeholder-2.png" alt="BadgeLife events" style="max-width: 100%; height: auto; border: 2px solid #00ff00;">
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>BADGELIFE</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- SECTION 2: HISTORY -->
+            
+            <!-- Slide 12: HISTORY Section Title -->
+            <div id="slide12" class="slide">
+                <div class="slide-header">// SECTION 2</div>
+                <div class="slide-content" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div style="text-align: center;">
+                        <p style="font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 20px #00ff00;">
+                            <span class="blink">▓▓▓</span> HISTORY <span class="blink">▓▓▓</span>
+                        </p>
+                        <p style="font-size: 18px; opacity: 0.8;">
+                            THE ORIGINS OF BADGELIFE
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>SECTION 2</span>
+                    <span class="nav-hint">→ CONTINUE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 13: DEF CON 2005 - Joe Grand (Images) -->
+            <div id="slide13" class="slide">
+                <div class="slide-header">// DEF CON 2005 - JOE GRAND</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 10px;">
+                        It all started with <strong>DEF CON 2005</strong>, when <strong>Joe Grand</strong> created the first electronic badge.
+                    </p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/joe-grand-first-badge.png" alt="Joe Grand's first badge" style="max-width: 65%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 14: Contest Precedent -->
+            <div id="slide14" class="slide">
+                <div class="slide-header">// CONTEST PRECEDENT</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; margin-bottom: 15px;">
+                        Here is a <a href="https://grandideastudio.com/wp-content/uploads/history_of_defcon_electronic_badges_slides.pdf" style="color: #00ff00; text-decoration: underline;">link to the presentation</a> that these slides came from.
+                    </p>
+                    <div style="border: 2px solid #00ff00; padding: 20px; margin: 20px 0;">
+                        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+                            <strong>Big Takeaways:</strong>
+                        </p>
+                        <ul style="font-size: 15px; line-height: 1.8;">
+                            <li>Make a badge + <strong>Award the most ingenious, obscure, mischievous, or technologically astounding badge modifications created over the weekend</strong></li>
+                            <li>This set a <strong>precedent for community involvement</strong> of hacking the badge, even if it was in contest format</li>
+                            <li>If you want to know more (hardware <a href="https://grandideastudio.com/portfolio/other/defcon-14-badge/" style="color: #00ff00; text-decoration: underline;">specs</a>, etc), check out his website!</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 14b: Badge Modification Contest -->
+            <div id="slide14b" class="slide">
+                <div class="slide-header">// BADGE MODIFICATION CONTEST</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+                        The badge modification contest became a <strong>cornerstone of DEF CON badgelife culture</strong>, encouraging creativity and hardware hacking.
+                    </p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/badge-mod-contest.png" alt="Badge modification contest" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 15: Arduino Emergence -->
+            <div id="slide15" class="slide">
+                <div class="slide-header">// ARDUINO!</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 20px;">
+                        The first 'badge' (PIC chip) occurred <strong>around the same time Arduino started existing</strong>, 
+                        and Atmel 168/328p chips and associated 'stuff' became more available.
+                    </p>
+                    <div style="border: 2px solid #00ff00; padding: 25px; margin: 30px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 16px; line-height: 1.8;">
+                            Also <a href="https://www.sparkfun.com/" style="color: #00ff00; text-decoration: underline;">SparkFun</a> and 
+                            <a href="https://www.adafruit.com/" style="color: #00ff00; text-decoration: underline;">Adafruit</a> 
+                            became more of a thing.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/arduino-era.png" alt="Arduino era" style="max-width: 60%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 16: SparkFun -->
+            <div id="slide16" class="slide">
+                <div class="slide-header">// SPARKFUN</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 30px; margin: 30px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 18px; line-height: 1.8; margin-bottom: 20px;">
+                            <a href="https://www.sparkfun.com/" style="color: #00ff00; text-decoration: underline;"><strong>SparkFun</strong></a> 
+                            started in <strong>2003</strong> as a place to buy 'Arduino stuff' and more.
+                        </p>
+                        <p style="font-size: 16px; line-height: 1.8;">
+                            They made electronics components accessible and provided resources for hobbyists and engineers alike.
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 17: Adafruit / Limor -->
+            <div id="slide17" class="slide">
+                <div class="slide-header">// ADAFRUIT / LIMOR FRIED</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 20px;">
+                        <strong>Limor Fried</strong> sold kits under the name <strong>Lady Ada</strong> before becoming 
+                        <a href="https://www.adafruit.com/" style="color: #00ff00; text-decoration: underline;"><strong>Adafruit</strong></a> 
+                        in <strong>2005</strong>.
+                    </p>
+                    <div style="border: 2px solid #00ff00; padding: 25px; margin: 30px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 15px; line-height: 1.8; font-style: italic;">
+                            <em>Coincidentally, that occurred out of a loft space in Queens where the author also ended up living 
+                            not too soon after college.</em>
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 18: Arduino Dev Environment -->
+            <div id="slide18" class="slide">
+                <div class="slide-header">// ARDUINO DEV ENVIRONMENT IMPACT</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 15px; margin: 15px 0;">
+                        <p style="font-size: 15px; line-height: 1.6;">
+                            Arduino's entire dev environment—<strong>the IDE, libraries, bootloader</strong>—made selling this stuff 
+                            niche but easy if you were developing <strong>hardware, firmware, and TUTORIALS</strong> on how to get started.
+                        </p>
+                    </div>
+                    <p style="font-size: 14px; line-height: 1.6; margin-top: 10px; opacity: 0.9;">
+                        In fact, the author owned <strong>more of Limor's boards than actual Arduinos</strong> by a longshot—the 
+                        'Boarduino' came without headers and could be soldered into any manner of thing at much less cost. 
+                        Part of that was the <strong>tutorials and support</strong> that allowed learning how to use the boards in a 
+                        stripped-down manual.
+                    </p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/boarduino.png" alt="Boarduino board" style="max-width: 55%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 19: Burning Man Blinkies -->
+            <div id="slide19" class="slide">
+                <div class="slide-header">// BURNING MAN BLINKIES</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+                        I found my own version of 'badgelife' around <strong>2005/2006 through Burning Man</strong>, with a camp called 
+                        <strong>Imagenode</strong>. We called them <strong>blinkies</strong>.
+                    </p>
+                    <div style="text-align: center; margin: 15px 0;">
+                          <img src="img/imagenode-blinky-2007.png" alt="Imagenode blinky from 2007" style="max-width: 55%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                    <p style="font-size: 14px; line-height: 1.6; margin-top: 10px; opacity: 0.8;">
+                        They were PCBs with LEDs and patterns. Later versions had SD card readers, PC-based GUI pattern programmers, and RGB LEDs.
+                    </p>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 20: Jesse Lackey -->
+            <div id="slide20" class="slide">
+                <div class="slide-header">// JESSE LACKEY</div>
+                <div class="slide-content">
+                    <p style="font-size: 13px; margin-bottom: 10px; opacity: 0.9;">
+                        <em>As Jesse Lackey recounts: [<a href="http://celestialaudio.com/bm2004/index.html" style="color: #00ff00;">source</a>]</em>
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: start;">
+                        <div style="border: 2px solid #00ff00; padding: 15px; background: rgba(0, 255, 0, 0.05); font-family: 'Courier New', monospace; height: 100%;">
+                            <p style="font-size: 12px; line-height: 1.4; margin-bottom: 10px;">
+                                "Blinkies 2004 era - ummmmmmm. Not that much around; at that time of course getting cheapo PCBs made 
+                                in China was pretty uncommon, there was no such thing as an arduino, etc. A lot fewer resources in general.
+                            </p>
+                            <p style="font-size: 12px; line-height: 1.4; margin-bottom: 10px;">
+                                If I recall correctly we (Todd & imagenode people) did it as a fundraiser, and in order for imagenode 
+                                people to help assemble them everything is through-hole, with parts on both sides. Very labor intensive, 
+                                and I think others were soldering in a tech corner of a dome/large tent onsite to finish! And to do 
+                                some repairs etc.
+                            </p>
+                            <p style="font-size: 11px; line-height: 1.3; margin-bottom: 10px;">
+                                I was doing Leo work, and the orange LEDs in the 2004 blinky either came from ones Leo found for a project, 
+                                or we found them and Leo used them for "hive", which is a collection of many (30? 80?) of these computer controlled.
+                            </p>
+                            <p style="font-size: 12px; line-height: 1.4; margin-bottom: 10px;">
+                                The 2004 blinky was done on cheap as possible pcb fab, no soldermask or silkscreen, which also 
+                                gave it a uniqueness/DIY appropriate for bman.
+                            </p>
+                            <p style="font-size: 12px; line-height: 1.4;">
+                                If I recall correctly, we had an easter egg, something like the 100th time you turn it on it scrolls 
+                                'Designed by very smart monkeys' or something like that :)"
+                            </p>
+                        </div>
+                        <div style="text-align: center;">
+                            <img src="img/blinky-2004.png" alt="2004 Blinky" style="max-width: 90%; height: auto; border: 2px solid #00ff00;">
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 21: Convergence -->
+            <div id="slide21" class="slide">
+                <div class="slide-header">// CONVERGENCE</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 35px; margin: 35px 0; background: rgba(0, 255, 0, 0.08);">
+                        <p style="font-size: 18px; line-height: 1.8; margin-bottom: 25px; text-align: center;">
+                            <span class="blink">▓</span> A COLLECTIVE EMERGENCE <span class="blink">▓</span>
+                        </p>
+                        <p style="font-size: 16px; line-height: 1.8; margin-bottom: 20px;">
+                            Both <strong>DEF CON badgelife</strong> and <strong>Burning Man blinkies</strong> emerged from the same 
+                            cultural moment—a convergence of <strong>low-cost fabrication</strong>, <strong>accessible parts</strong>, 
+                            and the human drive to push <strong>artistic and technological boundaries</strong>.
+                        </p>
+                        <p style="font-size: 16px; line-height: 1.8;">
+                            These movements weren't coordinated—they sprang from the <strong>collective unconscious zeitgeist</strong> 
+                            of makers who saw the PCB not just as circuitry, but as <strong>canvas</strong>, as <strong>sculpture</strong>, 
+                            as a medium for expression that bridged art, engineering, and community.
+                        </p>
+                    </div>
+                    <p style="font-size: 14px; margin-top: 30px; text-align: center; opacity: 0.7;">
+                        <span class="blink">▓▓▓</span> END OF SECTION 2 <span class="blink">▓▓▓</span>
+                    </p>
+                </div>
+                <div class="slide-footer">
+                    <span>HISTORY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- PLACEHOLDER SECTIONS -->
+            
+            <!-- Slide 22: COMMUNITY Section Title -->
+            <div id="slide22" class="slide">
+                <div class="slide-header">// SECTION 3</div>
+                <div class="slide-content" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div style="text-align: center;">
+                        <p style="font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 20px #00ff00;">
+                            <span class="blink">▓▓▓</span> COMMUNITY <span class="blink">▓▓▓</span>
+                        </p>
+                        <p style="font-size: 18px; opacity: 0.8;">
+                            THE ECOSYSTEM
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>SECTION 3</span>
+                    <span class="nav-hint">→ CONTINUE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 22b: Community - The Ecosystem -->
+            <div id="slide22b" class="slide">
+                <div class="slide-header">// THE ECOSYSTEM</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.8; margin-bottom: 20px;">
+                        There isn't a de facto directory, but here's a <a href="https://docs.google.com/spreadsheets/u/1/d/1NgPj-GdSLcI1Rb2Q2sJ5BP0MO2vm2MXv_sLVqHSL8wM/preview?pli=1&gid=0#gid=0" style="color: #00ff00; text-decoration: underline;">list from DEF CON 26</a>. 
+                        That was almost 7 years ago—<strong>over 40 unique makers and over 75 badges</strong>.
+                    </p>
+                    <div style="border: 2px solid #00ff00; padding: 25px; margin: 30px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 15px; line-height: 1.8;">
+                            It's not just at DEF CON. <strong>Hardware hacking villages</strong> are almost always present at a con, 
+                            even if it's two guys and a soldering iron. The tangibility seems to be a big hit, even for non-hardware 
+                            hackers—especially the <strong>collectability of unique badges</strong>. And who doesn't love a good blinky?
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>COMMUNITY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 22c: Community Building -->
+            <div id="slide22c" class="slide">
+                <div class="slide-header">// COMMUNITY BUILDING</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 30px; margin: 30px 0;">
+                        <p style="font-size: 15px; line-height: 1.8; margin-bottom: 15px;">
+                            From the perspective of having run a weekly hacker/maker meetup: <strong>it requires effort to create 
+                            and maintain community</strong>. Hackers/nerds can be insular and we are all a little neurospicy.
+                        </p>
+                        <p style="font-size: 15px; line-height: 1.8;">
+                            Badgelife is a great way to have <strong>common ground</strong> to discuss and welcome newcomers. Being 
+                            part of badgelife or any maker village is a <strong>great gateway or reason to attend a con</strong>, 
+                            especially if you think everyone there is Neo from The Matrix or feel uncomfortable expressing intangible 
+                            things in public (like code).
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>COMMUNITY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 22d: Co-Working & HackFun -->
+            <div id="slide22d" class="slide">
+                <div class="slide-header">// CO-WORKING & ACCOUNTABILITY</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 30px; margin: 30px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 16px; line-height: 1.8; margin-bottom: 20px;">
+                            <strong>Co-working or co-problem solving</strong> provides enthusiasm and accountability.
+                        </p>
+                        <p style="font-size: 15px; line-height: 1.8;">
+                            A huge reason the author started <strong>HackFun</strong>—to create spaces where hardware-minded people 
+                            could participate more directly at conferences, even if hardware isn't their 'job' or profession.
+                        </p>
+                    </div>
+                    <p style="font-size: 14px; margin-top: 20px; opacity: 0.8; line-height: 1.6;">
+                        This has brought a lot more hardware/device hackers to DEF CON and other cons. The first winner of the badge 
+                        contest was a DJ who used it to modulate his analog synth rig. It has certainly brought forward the 
+                        <strong>play and creativity aspects</strong> to hacking!
+                    </p>
+                </div>
+                <div class="slide-footer">
+                    <span>COMMUNITY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23: GALLERY Section Title -->
+            <div id="slide23" class="slide">
+                <div class="slide-header">// SECTION 4</div>
+                <div class="slide-content" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div style="text-align: center;">
+                        <p style="font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 20px #00ff00;">
+                            <span class="blink">▓▓▓</span> GALLERY <span class="blink">▓▓▓</span>
+                        </p>
+                        <p style="font-size: 18px; opacity: 0.8;">
+                            NOTABLE BADGE MAKERS
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>SECTION 4</span>
+                    <span class="nav-hint">→ CONTINUE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23b: Gallery - Notable Makers -->
+            <div id="slide23b" class="slide">
+                <div class="slide-header">// NOTABLE BADGE MAKERS</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; margin-bottom: 30px; text-align: center;">
+                        <span class="blink">▓</span> THE PIONEERS <span class="blink">▓</span>
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; font-size: 16px;">
+                        <div style="border: 2px solid #00ff00; padding: 20px; cursor: pointer;" onclick="showSlide('slide23c')">
+                            <p style="font-size: 18px; margin-bottom: 15px;"><strong>→ <a href="https://www.andnxor.com/" style="color: #00ff00; text-decoration: underline;" onclick="event.stopPropagation();">ANDnXOR</a></strong></p>
+                            <p style="font-size: 14px; opacity: 0.8;">Legendary for interactive puzzle badges</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: #00ff00; opacity: 0.6;">[Click to view gallery]</p>
+                        </div>
+                        <div style="border: 2px solid #00ff00; padding: 20px; cursor: pointer;" onclick="showSlide('slide23d')">
+                            <p style="font-size: 18px; margin-bottom: 15px;"><strong>→ BRIAN BENCHOFF</strong></p>
+                            <p style="font-size: 14px; opacity: 0.8;">Mr Robot badge & SAO pioneer</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: #00ff00; opacity: 0.6;">[Click to view gallery]</p>
+                        </div>
+                        <div style="border: 2px solid #00ff00; padding: 20px; cursor: pointer;" onclick="showSlide('slide23e')">
+                            <p style="font-size: 18px; margin-bottom: 15px;"><strong>→ THE TYMKRS</strong></p>
+                            <p style="font-size: 14px; opacity: 0.8;">Artistic PCB innovators</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: #00ff00; opacity: 0.6;">[Click to view gallery]</p>
+                        </div>
+                        <div style="border: 2px solid #00ff00; padding: 20px; cursor: pointer;" onclick="showSlide('slide23f')">
+                            <p style="font-size: 18px; margin-bottom: 15px;"><strong>→ JOE GRAND</strong></p>
+                            <p style="font-size: 14px; opacity: 0.8;">Started it all with DEF CON 14</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: #00ff00; opacity: 0.6;">[Click to view gallery]</p>
+                        </div>
+                        <div style="border: 2px solid #00ff00; padding: 20px; cursor: pointer;" onclick="showSlide('slide23g')">
+                            <p style="font-size: 18px; margin-bottom: 15px;"><strong>→ <a href="https://www.badgepirates.com/" style="color: #00ff00; text-decoration: underline;" onclick="event.stopPropagation();">BADGE PIRATES</a></strong></p>
+                            <p style="font-size: 14px; opacity: 0.8;">Community-focused badge collective</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: #00ff00; opacity: 0.6;">[Click to view gallery]</p>
+                        </div>
+                        <div style="border: 2px solid #00ff00; padding: 20px; cursor: pointer;" onclick="showSlide('slide23h')">
+                            <p style="font-size: 18px; margin-bottom: 15px;"><strong>→ MAR WILLIAMS</strong></p>
+                            <p style="font-size: 14px; opacity: 0.8;">Artistic design excellence</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: #00ff00; opacity: 0.6;">[Click to view gallery]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>GALLERY</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23c: ANDnXOR Gallery -->
+            <div id="slide23c" class="slide">
+                <div class="slide-header">// GALLERY: ANDnXOR</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 20px; margin-bottom: 20px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>ANDnXOR</strong></p>
+                        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Legendary for interactive puzzle badges</p>
+                        <p style="font-size: 14px;">
+                            <a href="https://www.andnxor.com/" style="color: #00ff00; text-decoration: underline;">→ andnxor.com</a>
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="img/andnxor-gallery-placeholder.png" alt="ANDnXOR badge gallery" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>GALLERY - ANDnXOR</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23d: Brian Benchoff Gallery -->
+            <div id="slide23d" class="slide">
+                <div class="slide-header">// GALLERY: BRIAN BENCHOFF</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 20px; margin-bottom: 20px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>BRIAN BENCHOFF</strong></p>
+                        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Mr Robot badge & SAO pioneer</p>
+                        <p style="font-size: 14px;">
+                            <a href="#" style="color: #00ff00; text-decoration: underline;">[Website link to be added]</a>
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="img/benchoff-gallery-placeholder.png" alt="Brian Benchoff badge gallery" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>GALLERY - BRIAN BENCHOFF</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23e: The Tymkrs Gallery -->
+            <div id="slide23e" class="slide">
+                <div class="slide-header">// GALLERY: THE TYMKRS</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 20px; margin-bottom: 20px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>THE TYMKRS</strong></p>
+                        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Artistic PCB innovators</p>
+                        <p style="font-size: 14px;">
+                            <a href="#" style="color: #00ff00; text-decoration: underline;">[Website link to be added]</a>
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="img/tymkrs-gallery-placeholder.png" alt="The Tymkrs badge gallery" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>GALLERY - THE TYMKRS</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23f: Joe Grand Gallery -->
+            <div id="slide23f" class="slide">
+                <div class="slide-header">// GALLERY: JOE GRAND</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 20px; margin-bottom: 20px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>JOE GRAND</strong></p>
+                        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Started it all with DEF CON 14</p>
+                        <p style="font-size: 14px;">
+                            <a href="#" style="color: #00ff00; text-decoration: underline;">[Website link to be added]</a>
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="img/joegrand-gallery-placeholder.png" alt="Joe Grand badge gallery" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>GALLERY - JOE GRAND</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23g: Badge Pirates Gallery -->
+            <div id="slide23g" class="slide">
+                <div class="slide-header">// GALLERY: BADGE PIRATES</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 20px; margin-bottom: 20px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>BADGE PIRATES</strong></p>
+                        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Community-focused badge collective</p>
+                        <p style="font-size: 14px;">
+                            <a href="https://www.badgepirates.com/" style="color: #00ff00; text-decoration: underline;">→ badgepirates.com</a>
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="img/badgepirates-gallery-placeholder.png" alt="Badge Pirates gallery" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>GALLERY - BADGE PIRATES</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 23h: Mar Williams Gallery -->
+            <div id="slide23h" class="slide">
+                <div class="slide-header">// GALLERY: MAR WILLIAMS</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 20px; margin-bottom: 20px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>MAR WILLIAMS</strong></p>
+                        <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Artistic design excellence</p>
+                        <p style="font-size: 14px;">
+                            <a href="#" style="color: #00ff00; text-decoration: underline;">[Website link to be added]</a>
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="img/marwilliams-gallery-placeholder.png" alt="Mar Williams badge gallery" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>GALLERY - MAR WILLIAMS</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24: TECHNICAL Section Title -->
+            <div id="slide24" class="slide">
+                <div class="slide-header">// SECTION 5</div>
+                <div class="slide-content" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                    <div style="text-align: center;">
+                        <p style="font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 20px #00ff00;">
+                            <span class="blink">▓▓▓</span> TECHNICAL <span class="blink">▓▓▓</span>
+                        </p>
+                        <p style="font-size: 18px; opacity: 0.8;">
+                            PCB MAKING & ARTISTIC TECHNIQUES
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>SECTION 5</span>
+                    <span class="nav-hint">→ CONTINUE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24b: PCB Process - Schematic -->
+            <div id="slide24b" class="slide">
+                <div class="slide-header">// PCB MAKING: SCHEMATIC</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 10px;">
+                        <strong>Step 1: Schematic</strong> - Symbols laid out that are linked to footprints
+                    </p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/pcb-schematic.png" alt="PCB Schematic" style="max-width: 54%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24c: PCB Process - Layout -->
+            <div id="slide24c" class="slide">
+                <div class="slide-header">// PCB MAKING: LAYOUT</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 10px;">
+                        <strong>Step 2: PCB Layout</strong> - Put the footprints for each device where they need to go, connect traces and add labels
+                    </p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/pcb-layout.png" alt="PCB Layout" style="max-width: 60%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24d: PCB Layers -->
+            <div id="slide24d" class="slide">
+                <div class="slide-header">// PCB LAYERS</div>
+                <div class="slide-content">
+                    <p style="font-size: 14px; opacity: 0.8; margin-bottom: 10px;">
+                        Various layers make up the traces and graphics layers
+                    </p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/pcb-layers.png" alt="PCB Layers" style="max-width: 50%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                    <div style="border: 2px solid #00ff00; padding: 15px; margin: 15px 0;">
+                        <p style="font-size: 14px; line-height: 1.6; margin-bottom: 10px;">
+                            <strong>Standard PCB Layers:</strong>
+                        </p>
+                        <ul style="font-size: 13px; line-height: 1.5; list-style: none; padding-left: 0;">
+                            <li><strong>→ Silkscreen</strong> (top/bottom) - Labels and graphics</li>
+                            <li><strong>→ Mask resist</strong> (top/bottom) - Usually green protective layer</li>
+                            <li><strong>→ Copper placement</strong> (top/bottom) - Conductive traces</li>
+                            <li><strong>→ Substrate (FR4)</strong> - Base material (can be transparent)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24e: Making the Raw PCB -->
+            <div id="slide24e" class="slide">
+                <div class="slide-header">// MAKING THE RAW PCB</div>
+                <div class="slide-content">
+                    <p style="font-size: 15px; line-height: 1.8; margin-bottom: 20px;">
+                        <strong>Step 3:</strong> Based on the board layout files, you <strong>remove the copper</strong> from the PCB copper clad that you don't want.
+                        [<a href="https://www.instructables.com/Make-a-Circuit-Board-With-Household-Goods/" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="img/etching-process.png" alt="PCB etching process" style="max-width: 60%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                    <p style="font-size: 13px; opacity: 0.8; margin-top: 15px;">
+                        This can be done by coating the board in etch resist and hand dissolving the unwanted copper in a ferric-chloride acid bath, or even using a fiber laser
+                    </p>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24f: Solder Mask -->
+            <div id="slide24f" class="slide">
+                <div class="slide-header">// SOLDER MASK</div>
+                <div class="slide-content">
+                    <p style="font-size: 15px; line-height: 1.8; margin-bottom: 20px;">
+                        <strong>Step 4: Coat in mask</strong> (the usually green part). It comes in many colors—green is great for visual acuity, 
+                        but the dielectric properties of blue are apparently great for high-speed signals.
+                        [<a href="https://www.pcbjhy.com/blog/pcb-solder-mask-colors/" style="color: #00ff00;">source</a>]
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <img src="img/solder-mask-colors.png" alt="Solder mask colors" style="max-width: 60%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24g: Artistic PCB Techniques -->
+            <div id="slide24g" class="slide">
+                <div class="slide-header">// ARTISTIC PCB TECHNIQUES</div>
+                <div class="slide-content">
+                    <p style="font-size: 16px; margin-bottom: 25px; text-align: center;">
+                        <span class="blink">▓</span> A lot of the interesting badgelife stuff works with these layers in interesting ways <span class="blink">▓</span>
+                    </p>
+                    <div style="border: 2px solid #00ff00; padding: 25px; margin: 25px 0;">
+                        <ul style="font-size: 15px; line-height: 2; list-style: none;">
+                            <li><strong>→</strong> Knockout silkscreen</li>
+                            <li><strong>→</strong> Silkscreen on substrate</li>
+                            <li><strong>→</strong> Exposed copper (no solder mask)</li>
+                            <li><strong>→</strong> Solder mask over copper vs over substrate (creates texture)</li>
+                            <li><strong>→</strong> Transparency + Backlighting (use hot glue! or separators with LED offset)</li>
+                            <li><strong>→</strong> Fun cutouts/edgecut</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24h: SAO Connector -->
+            <div id="slide24h" class="slide">
+                <div class="slide-header">// THE SAO CONNECTOR</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 15px; margin: 10px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 15px; line-height: 1.6; margin-bottom: 10px;">
+                            <strong>WTF is it?</strong> The <strong>Shitty Add-On (SAO)</strong> connector standard allows badges to have 
+                            interchangeable add-ons, creating a whole ecosystem of collectible mini-badges.
+                        </p>
+                        <p style="font-size: 14px; line-height: 1.5;">
+                            This badge from ANDnXOR is said to have created it with the brainslug. Brian Benchoff had all of the connectors 
+                            for a while. They're just a pain to find (either IDC header) and aren't cheap.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <img src="img/sao-brainslug.png" alt="SAO Brainslug badge" style="max-width: 50%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <!-- Slide 24i: SAO Pinout -->
+            <div id="slide24i" class="slide">
+                <div class="slide-header">// SAO PINOUT & CONNECTORS</div>
+                <div class="slide-content">
+                    <div style="border: 2px solid #00ff00; padding: 15px; margin: 10px 0; background: rgba(0, 255, 0, 0.05);">
+                        <p style="font-size: 15px; line-height: 1.6; margin-bottom: 10px;">
+                            <strong>SAO Standard Pinout</strong>
+                        </p>
+                        <p style="font-size: 14px; line-height: 1.5;">
+                            The SAO connector uses a 2x3 pin header with standardized pinout for power and I2C communication.
+                        </p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div style="text-align: center;">
+                            <p style="font-size: 14px; margin-bottom: 10px; opacity: 0.8;">Badge Socket (Top View)</p>
+                            <img src="img/00_sao_badge_socket_top_view.png" alt="SAO Badge Socket Top View" style="max-width: 100%; height: auto; border: 2px solid #00ff00;">
+                        </div>
+                        <div style="text-align: center;">
+                            <p style="font-size: 14px; margin-bottom: 10px; opacity: 0.8;">SAO Header (Top View)</p>
+                            <img src="img/00_sao_sao_header_top_view.png" alt="SAO Header Top View" style="max-width: 100%; height: auto; border: 2px solid #00ff00;">
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <p style="font-size: 14px; margin-bottom: 10px; opacity: 0.8;">SAO Pinout Reference (by Brian Benchoff)</p>
+                        <img src="img/00_sao_pinout_benchoff.webp" alt="SAO Pinout by Brian Benchoff" style="max-width: 70%; height: auto; border: 2px solid #00ff00;">
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span>TECHNICAL</span>
+                    <span class="nav-hint">← → NAVIGATE | ESC MENU</span>
+                </div>
+            </div>
+
+            <div class="secret-link" onclick="showPlasma()">
+                [PLASMA.EXE]
+            </div>
+            <div class="secret-link" style="left: 95px;" onclick="showMatrix()">
+                [MATRIX.EXE]
+            </div>
+            <div class="secret-link" style="left: 190px;" onclick="logout()">
+                [LOGOUT.EXE]
+            </div>
+        </div>
+    </div>
+
+    <!-- Plasma Easter Egg Canvas -->
+    <canvas id="plasma-canvas"></canvas>
+    
+    <!-- Matrix Rain Easter Egg Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <script>
+        let currentSlide = null;
+        const slides = ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6', 'slide7', 'slide8', 'slide9', 'slide10', 'slide11', 'slide12', 'slide13', 'slide14', 'slide14b', 'slide15', 'slide16', 'slide17', 'slide18', 'slide19', 'slide20', 'slide21', 'slide22', 'slide22b', 'slide22c', 'slide22d', 'slide23', 'slide23b', 'slide23c', 'slide23d', 'slide23e', 'slide23f', 'slide23g', 'slide23h', 'slide24', 'slide24b', 'slide24c', 'slide24d', 'slide24e', 'slide24f', 'slide24g', 'slide24h', 'slide24i'];
+        let currentIndex = -1;
+        let bootComplete = false;
+
+        // Boot sequence
+        function runBootSequence() {
+            const bootScreen = document.getElementById('boot-sequence');
+            const bootLines = [
+                'BADGELIFE TERMINAL v1.2',
+                '',
+                'Initializing systems...',
+                '[OK] Loading cat modules',
+                '[OK] Aligning terrestrial satelite transciever', 
+                '[OK] Starting hot dog roller',
+                '[OK] Calibrating 8k VFC module',
+                '',
+                '▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%',
+                '',
+                ' ____    _    ____   ____ _____ _     ___ _____ _____ ',
+                '| __ )  / \\  |  _ \\ / ___| ____| |   |_ _|  ___| ____|',
+                '|  _ \\ / _ \\ | | | | |  _|  _| | |    | || |_  |  _|  ',
+                '| |_) / ___ \\| |_| | |_| | |___| |___ | ||  _| | |___ ',
+                '|____/_/   \\_\\____/ \\____|_____|_____|___|_|   |_____|',
+                '',
+                '              -= pcb. led. community. =-',
+                '',
+                'Press any key to continue...'
+            ];
+
+            let lineIndex = 0;
+            function addLine() {
+                if (lineIndex < bootLines.length) {
+                    const line = document.createElement('div');
+                    line.className = 'boot-line';
+                    line.textContent = bootLines[lineIndex];
+                    line.style.animationDelay = '0s';
+                    bootScreen.appendChild(line);
+                    lineIndex++;
+                    
+                    const delay = lineIndex < 10 ? 150 : 
+                                 lineIndex < 20 ? 100 : 200;
+                    setTimeout(addLine, delay);
+                } else {
+                    bootComplete = true;
+                }
+            }
+            
+            addLine();
+        }
+
+        function showMenu() {
+            document.getElementById('boot-sequence').style.display = 'none';
+            document.getElementById('menu').style.display = 'flex';
+            if (currentSlide) {
+                document.getElementById(currentSlide).classList.remove('active');
+            }
+            currentSlide = null;
+            currentIndex = -1;
+        }
+
+        function showSlide(slideId) {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('boot-sequence').style.display = 'none';
+            if (currentSlide) {
+                document.getElementById(currentSlide).classList.remove('active');
+            }
+            currentSlide = slideId;
+            currentIndex = slides.indexOf(slideId);
+            document.getElementById(slideId).classList.add('active');
+        }
+
+        function nextSlide() {
+            if (currentIndex < slides.length - 1) {
+                showSlide(slides[currentIndex + 1]);
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                showSlide(slides[currentIndex - 1]);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // If boot sequence is visible, any key advances to menu
+            if (document.getElementById('boot-sequence').style.display !== 'none') {
+                showMenu();
+                return;
+            }
+            
+            if (e.key === 'Escape') {
+                showMenu();
+            } else if (e.key === 'ArrowRight') {
+                if (currentSlide) nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide) prevSlide();
+            }
+        });
+
+        // Logout - return to boot sequence
+        function logout() {
+            // Hide everything
+            document.getElementById('menu').style.display = 'none';
+            if (currentSlide) {
+                document.getElementById(currentSlide).classList.remove('active');
+            }
+            
+            // Clear and restart boot sequence
+            const bootScreen = document.getElementById('boot-sequence');
+            bootScreen.innerHTML = '';
+            bootScreen.style.display = 'flex';
+            currentSlide = null;
+            currentIndex = -1;
+            
+            runBootSequence();
+        }
+
+        // Matrix rain effect
+        function showMatrix() {
+            const canvas = document.getElementById('matrix-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.style.display = 'block';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()🐱🌭😺🐈🌮';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = [];
+            
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * canvas.height / fontSize;
+            }
+
+            const matrixInterval = setInterval(() => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#00ff00';
+                ctx.font = fontSize + 'px monospace';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }, 50);
+
+            canvas.onclick = () => {
+                clearInterval(matrixInterval);
+                canvas.style.display = 'none';
+                canvas.onclick = null;
+            };
+        }
+
+        // Plasma effect (easter egg)
+        function showPlasma() {
+            const canvas = document.getElementById('plasma-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.style.display = 'block';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let time = 0;
+            const plasmaInterval = setInterval(() => {
+                for (let y = 0; y < canvas.height; y += 2) {
+                    for (let x = 0; x < canvas.width; x += 2) {
+                        const value = Math.sin(x / 16.0 + time) +
+                                    Math.sin(y / 8.0 + time) +
+                                    Math.sin((x + y) / 16.0 + time) +
+                                    Math.sin(Math.sqrt(x * x + y * y) / 8.0 + time);
+                        
+                        const color = Math.floor(128 + 128 * Math.sin(value));
+                        ctx.fillStyle = `rgb(0, ${color}, 0)`;
+                        ctx.fillRect(x, y, 2, 2);
+                    }
+                }
+                time += 0.05;
+            }, 50);
+
+            // Click to close
+            canvas.onclick = () => {
+                clearInterval(plasmaInterval);
+                canvas.style.display = 'none';
+                canvas.onclick = null;
+            };
+        }
+
+        // Initialize with boot sequence
+        runBootSequence();
+    </script>
+</body>
+</html>
